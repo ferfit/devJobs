@@ -1,0 +1,27 @@
+{
+  "name": "devjobs",
+  "version": "1.0.0",
+  "description": "plataforma donde buscar y publicar enpleos",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start":"nodemon ./index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ferfit/devJobs.git"
+  },
+  "author": "Fernando Pereyra",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/ferfit/devJobs/issues"
+  },
+  "homepage": "https://github.com/ferfit/devJobs#readme",
+  "dependencies": {
+    "express": "^4.17.2",
+    "express-handlebars": "^6.0.2"
+  },
+  "devDependencies": {
+    "nodemon": "^2.0.15"
+  }
+}
