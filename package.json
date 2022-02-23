@@ -20,6 +20,7 @@
   },
   "homepage": "https://github.com/ferfit/devJobs#readme",
   "dependencies": {
+    "bcrypt": "^5.0.1",
     "concurrently": "^7.0.0",
     "connect-mongo": "^4.6.0",
     "cookie-parser": "^1.4.6",
