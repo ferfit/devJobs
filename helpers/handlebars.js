@@ -6,12 +6,18 @@ module.exports = {
         'Mongoose', 'SQL', 'MVC', 'SASS', 'WordPress'];
 
         let html = '';
-        skills.forEach(skill => {
+        skills.forEach(skill => { //el selecciona.include es para la parte de editarVacante
             html +=`
-                <li>${skill}</li>
+                <li ${seleccionadas.includes(skill) ? 'class="activo"' : ''}>${skill}</li>
             `
         })
 
         return opciones.fn().html = html;
+    },
+
+    tipoContrato: (seleccionado, opciones) => {
+        return opciones.fn(this).replace(
+            new RegExp(`value="${seleccionado}"`),'$& selected="selected"' //insesrta variable y un string
+        )
     }
 }
