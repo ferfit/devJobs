@@ -11,6 +11,12 @@ document.addEventListener('DOMContentLoaded',()=>{
         skillsSeleccionados();
     }
 
+    //limpiar alertas
+    let alertas = document.querySelector('.alertas');
+    if(alertas){
+        limpiarAlertas();
+    }
+
 })
 
 const skills = new Set(); // El objeto Set permite almacenar valores únicos de cualquier tipo, incluso valores primitivos u referencias a objetos.
@@ -40,7 +46,7 @@ const agregarSkills = (e) =>{
 const skillsSeleccionados = () =>{
     const seleccionadas = Array.from(document.querySelectorAll('.lista-conocimientos .activo'));
     
-    //}Agregamos nuevas skills, recordar que este metodo add, si ya existe no lo agrega
+    //Agregamos nuevas skills, recordar que este metodo add, si ya existe no lo agrega
     seleccionadas.forEach(seleccionada => {
         skills.add(seleccionada.textContent);
     })
@@ -50,3 +56,23 @@ const skillsSeleccionados = () =>{
     document.querySelector('#skills').value = skillsArray;
 
 }
+
+const limpiarAlertas = () => {
+
+    const alertas = document.querySelector('.alertas');
+
+    const interval = setInterval(()=>{
+        if( alertas.children.length > 0 ){
+            alertas.removeChild(alertas.children[0]);
+        } else if (alertas.children.length === 0){
+            alertas.parentElement.removeChild(alertas); //remueve el padre
+            clearInterval(interval);
+        }
+    },1500);
+
+
+}
+
+
+
+

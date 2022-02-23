@@ -10,6 +10,8 @@ const cookieParser = require('cookie-parser');
 const session = require('express-session');
 const MongoStore = require('connect-mongo');
 const bodyParser = require('body-parser'); //viene con express
+const flash = require('connect-flash');
+
 
 const app = express();
 
@@ -39,6 +41,14 @@ app.use(session({
     saveUninitialized:false,
     store: MongoStore.create({mongoUrl: process.env.DATABASE})
 }));
+
+//hablita flah y crea un middleware
+app.use(flash());
+
+app.use((req,res,next) => {
+    res.locals.mensajes = req.flash();
+    next();
+});
 
 //Ruteo
 app.use('/',router());
