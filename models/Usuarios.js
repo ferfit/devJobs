@@ -37,6 +37,7 @@ usuariosSchema.pre('save',async function(next){
     next();
 })
 
+//envia alerta si el email ya esta registrado
 usuariosSchema.post('save',function(error, doc, next){
     
     if(error.name === 'MongoServerError' && error.code === 11000){
@@ -45,5 +46,12 @@ usuariosSchema.post('save',function(error, doc, next){
         next(error); 
     }
 })
+
+//autentica usuario
+usuariosSchema.methods = {
+    compararPassword: function(password){
+        return bcrypt.compareSync(password, this.password) //compara el pasword del form con el de la bd
+    }
+}
 
 module.exports = mongoose.model('Usuarios',usuariosSchema);
