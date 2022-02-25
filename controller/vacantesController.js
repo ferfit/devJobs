@@ -1,11 +1,14 @@
 const mongoose = require("mongoose");
 const Vacante = mongoose.model('Vacante');
+const { body, validationResult } = require('express-validator');
 
 
 exports.formularioNuevaVacante = (req, res) => {
     res.render('nueva-vacante',{
         nombrePagina: 'Nueva vacante',
-        tagline: 'LLena el formulario y publica tu vacante'
+        tagline: 'LLena el formulario y publica tu vacante',
+        cerrarSesion:true,
+        nombre: req.user.nombre
     })
 }
 
@@ -53,7 +56,9 @@ exports.formEditarVacante = async (req, res, next) =>{
     //Retorno
     res.render('editar-vacante',{
         vacante,
-        nombrePagina : `Editar - ${vacante.titulo}`
+        nombrePagina : `Editar - ${vacante.titulo}`,
+        cerrarSesion:true,
+        nombre: req.user.nombre
 
     });
 }
@@ -71,4 +76,63 @@ exports.editarVacante = async ( req , res ) => {
                     });
     
     res.redirect(`/vacantes/${vacante.url}`);
+}
+
+exports.validarVacante = async (req, res, next) => {
+    const rules = [
+        body("titulo")
+        .not()
+        .isEmpty()
+        .withMessage("Agrega un titulo a la Vacante")
+        .escape(),
+        body("empresa")
+            .isEmail()
+            .withMessage("Agrega una empresa")
+            .escape(),
+        body("ubicacion")
+            .not()
+            .isEmpty()
+            .withMessage("Agrega una ubicación")
+            .escape(),
+        body("contrato")
+            .not()
+            .isEmpty()
+            .withMessage("Selecciona un tipo de contrato")
+             .escape(),
+        body("skills")
+            .not()
+            .isEmpty()
+            .withMessage("Agrega las skills para la vacante")
+            .escape(),
+      ];
+
+      await Promise.all(rules.map((validation) => validation.run(req)));
+      const errors = validationResult(req);
+  
+ 
+  if (errors) {
+    // Recargar pagina con errores
+    req.flash(
+      "error",
+      errors.array().map((error) => error.msg)
+    );
+
+    res.render("nueva-vacante", {
+      nombrePagina: "Nueva Vacante",
+      tagline: "Llena el formulario y publica tu vacante",
+      cerrarSesion: true,
+      nombre: req.user.nombre,
+      mensajes: req.flash()
+    });
+    return;
+  }
+  next();
+};
+
+
+exports.eliminarVacante = async (req,res) => {
+    const {id} = req.params;
+
+    console.log(id);
+
 }
