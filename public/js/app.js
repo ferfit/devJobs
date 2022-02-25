@@ -1,3 +1,6 @@
+import axios from 'axios';
+import Swal from 'sweetalert2';
+
 
 
 document.addEventListener('DOMContentLoaded',()=>{
@@ -15,6 +18,13 @@ document.addEventListener('DOMContentLoaded',()=>{
     let alertas = document.querySelector('.alertas');
     if(alertas){
         limpiarAlertas();
+    }
+
+    //elimina vacante
+    const vacantesListado = document.querySelector('.panel-administracion');
+
+    if(vacantesListado){
+        vacantesListado.addEventListener('click', accionesListado);
     }
 
 })
@@ -73,6 +83,55 @@ const limpiarAlertas = () => {
 
 }
 
+//Eliminar vacantes
+const accionesListado = e => {
+    /* e.preventDefault();
+
+    console.log(e.target.dataset.eliminar); */
+
+    if(e.target.dataset.eliminar){
+
+        Swal.fire({
+            title: 'Estas seguro?',
+            text: "No podras revertir esta acción!",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Yes, Eliminar!',
+            cancelButtonText: 'Cancelar'
+          }).then((result) => {
+            if (result.isConfirmed) {
+                //enviar con axios
+                const url = `${location.origin}/vacantes/eliminar/${e.target.dataset.eliminar}`;
+
+                axios.delete(url,{params:{url}})
+                .then(function(respuesta){
+                    if(respuesta.status == 200){
+                        Swal.fire(
+                            'Eliminado!',
+                            respuesta.data,
+                            'success'
+                          )
+                    }
+                });
+
+                //Eliminar del dom
+                e.target.parentElement.parentElement.parentElement.removeChild(e.target.parentElement.parentElement);
+              
+            }
+          }).catch(()=>{
+            Swal.fire({
+                type:'error',
+                title:'Hubo un error',
+                text:'No se puede eliminar'
+            })
+          })
+
+    } else if(e.target.tagName === 'A') { // Si se hace click en un enlace
+        window.location.href = e.target.href;
+    }
+}
 
 
 
