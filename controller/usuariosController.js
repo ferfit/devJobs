@@ -1,6 +1,8 @@
 const mongoose = require("mongoose");
 const Usuarios = mongoose.model('Usuarios');
 const { body, validationResult } = require('express-validator');
+const multer = require("multer");
+const shortid = require('shortid');
 
 
 exports.formCrearCuenta = (req,res) => {
@@ -80,7 +82,8 @@ exports.formEditarPerfil = (req , res) => {
     nombrePagina: 'Edita tu perfil en DevJobs',
     usuario: req.user.toObject(),
     cerrarSesion:true,
-    nombre: req.user.nombre
+    nombre: req.user.nombre,
+    imagen: req.user.imagen
     })
 }
 
@@ -93,6 +96,11 @@ exports.editarPerfil = async (req,res) => {
     if(req.body.password){
         usuario.password = req.body.password
     }
+
+    if(req.file){
+        usuario.imagen = req.file.filename;
+    }
+
 
     req.flash('correcto','Cambios guardados correctamente.');
     await usuario.save();
@@ -144,3 +152,61 @@ exports.validarPerfil = async (req, res, next) => {
   }
   next();
 };
+
+exports.subirImagen = (req, res,next) => {
+    upload(req,res, function(error){
+        //console.log(error);
+        if(error){
+            if(error instanceof multer.MulterError){ //error de multer
+                if(error.code === 'LIMIT_FILE_SIZE'){
+                    req.flash('error','El archivo es muy grande: Maximo 100kb');
+                } else {
+                    req.flash('error',error.message);
+                }
+            
+            } else { //error de expresss
+                //console.log(error.message) 
+                req.flash('error',error.message);
+            }
+
+            res.redirect('/administracion');
+            return;
+
+        } else {
+            return next();
+        }
+        
+    })
+
+    next();
+}
+
+const configuracionMulter = {
+    limits:{
+        fileSize : 100000
+    },
+    storage: fileStorage = multer.diskStorage({ //
+        destination: (req,file,cb) =>{
+            cb(null,__dirname+'../../public/upload/perfiles') //primer parametro el error, se pone null
+        },
+        filename: (req, file, cb) =>{
+            //console.log(file)
+            const extension = file.mimetype.split('/')[1];
+            cb(null,`${shortid.generate()}.${extension}`);
+        }
+    }),
+    fileFilter(req,file,cb){
+        if(file.mimetype === 'image/jpeg' || file.mimetype === 'image/png' ){
+            //el callback se ejecuta como true o false: true cuando la imagen se acepta
+            cb(null,true);
+        } else {
+            // si es otro tipo de archivo
+            cb(new Error('Formato no valido'),false);
+        }
+    }
+    
+
+}
+
+const upload = multer(configuracionMulter).single('imagen');// aca pasamos la imagen al metodo single 
+
