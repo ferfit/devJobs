@@ -81,12 +81,13 @@ exports.editarVacante = async ( req , res ) => {
 exports.validarVacante = async (req, res, next) => {
     const rules = [
         body("titulo")
-        .not()
-        .isEmpty()
-        .withMessage("Agrega un titulo a la Vacante")
-        .escape(),
+            .not()
+            .isEmpty()
+            .withMessage("Agrega un titulo a la Vacante")
+            .escape(),
         body("empresa")
-            .isEmail()
+            .not()
+            .isEmpty()
             .withMessage("Agrega una empresa")
             .escape(),
         body("ubicacion")

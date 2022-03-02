@@ -17,7 +17,7 @@ module.exports = () =>{
         vacantesController.formularioNuevaVacante);
     router.post('/vacantes/nueva',
         authController.verificarUsuario,
-        vacantesController.validarVacante,
+        //vacantesController.validarVacante,
         vacantesController.agregarVacante);
     router.get('/vacantes/:url',vacantesController.mostrarVacante);
     router.get('/vacantes/editar/:url',
