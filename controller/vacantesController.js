@@ -1,6 +1,8 @@
 const mongoose = require("mongoose");
 const Vacante = mongoose.model('Vacante');
 const { body, validationResult } = require('express-validator');
+const multer = require('multer');
+const shortid = require('shortid');
 
 
 exports.formularioNuevaVacante = (req, res) => {
@@ -163,4 +165,120 @@ const verificarAutor = ( vacante = {}, usuario = {} ) => {
     }
 
     return true;
+}
+
+
+exports.subirCv = (req,res,next) => {
+
+    upload(req,res, function(error){
+        //console.log(error);
+        if(error){
+            if(error instanceof multer.MulterError){ //error de multer
+                if(error.code === 'LIMIT_FILE_SIZE'){
+                    req.flash('error','El archivo es muy grande: Maximo 100kb');
+                } else {
+                    req.flash('error',error.message);
+                }
+            
+            } else { //error de expresss
+                //console.log(error.message) 
+                req.flash('error',error.message);
+            }
+
+            res.redirect('back'); //back, retorna al a misma pagina
+            return;
+
+        } else {
+            return next();
+        }
+        
+    })
+
+    next();
+
+}
+
+const configuracionMulter = {
+    limits:{
+        fileSize : 100000
+    },
+    storage: fileStorage = multer.diskStorage({ //
+        destination: (req,file,cb) =>{
+            cb(null,__dirname+'../../public/upload/cv') //primer parametro el error, se pone null
+        },
+        filename: (req, file, cb) =>{
+            //console.log(file)
+            const extension = file.mimetype.split('/')[1];
+            cb(null,`${shortid.generate()}.${extension}`);
+        }
+    }),
+    fileFilter(req,file,cb){
+        if(file.mimetype === 'application/pdf' ){
+            //el callback se ejecuta como true o false: true cuando la imagen se acepta
+            cb(null,true);
+        } else {
+            // si es otro tipo de archivo
+            cb(new Error('Formato no valido'),false);
+        }
+    }
+    
+
+}
+
+const upload = multer(configuracionMulter).single('cv');// aca pasamos el finput file al metodo single 
+
+
+//almacena los candidatos en al bd
+exports.contactar = async (req, res,next) =>{
+
+    //console.log(req.params.url)
+    const vacante = await Vacante.findOne({url: req.params.url}).lean();
+
+    if(!vacante) return next();
+
+    const nuevoCandidato = {
+        nombre: req.body.nombre,
+        email:req.body.email,
+        cv:req.file.filename //este lo geners multer
+    }
+
+    //alacenamos en bd
+    vacante.candidatos.push(nuevoCandidato);
+    await vacante.save();
+
+    //redireccion
+    req.flash('correcto','Se envio tu cv correctamente.');
+    res.redirect('/');
+
+}
+
+
+exports.mostrarCandidatos = async (req,res,next) =>{
+    //console.log(req.params.id)
+
+    const vacante = await Vacante.findById(req.params.id).lean();
+
+    if(!vacante){
+        return next();
+    }
+
+    if(vacante.autor != req.user._id.toString()){
+        return next();
+    } 
+
+    res.render('candidatos',{
+        nombrePagina: `Candidatos vacante - ${vacante.titulo}`,
+        cerrarSesion:true,
+        nombre: req.user.imagen,
+        nombre: req.user.nombre,
+        candidatos: vacante.candidatos
+    })
+
+    
+
+
+
+
+    
+    
 }

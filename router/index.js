@@ -1,5 +1,4 @@
 const express = require('express');
-const { route } = require('express/lib/application');
 const router = express.Router();
 const homeController = require('../controller/homeController');
 const vacantesController = require('../controller/vacantesController');
@@ -42,6 +41,18 @@ module.exports = () =>{
         authController.verificarUsuario,
         authController.cerrarSesion);
 
+    /*------------Reestablecer password-----------*/
+    router.get('/reestablecer-password',
+        authController.formReestablecerPassword);
+    router.post('/reestablecer-password',
+        authController.enviarToken);
+    router.get('/reestablecer-password/:token',
+    authController.reestablecerPassword);
+    router.post('/reestablecer-password/:token',
+    authController.guardarPassword);
+    
+
+
     /*------------Panel de administracion-----------*/
     router.get('/administracion',
         authController.verificarUsuario,
@@ -56,14 +67,17 @@ module.exports = () =>{
         //usuariosController.validarPerfil,
         usuariosController.subirImagen,
         usuariosController.editarPerfil);
-    
-    
-    
 
-    
-    
+    /*------------Recibir mensajes de candidatos-----------*/
+    router.post('/vacantes/:url',
+        vacantesController.subirCv, //validaciones
+        vacantesController.contactar); //carga en bd
 
-
+    /*-----------Muestra los candidatos------------*/
+    router.get('/candidatos/:id',
+    authController.verificarUsuario,
+    vacantesController.mostrarCandidatos);
+    
 
 
     return router;
