@@ -28,6 +28,11 @@ module.exports = () =>{
         vacantesController.editarVacante);
     router.delete('/vacantes/eliminar/:id', vacantesController.eliminarVacante)
 
+    router.get('/vacantes/pdf/:id',
+        authController.verificarUsuario,
+        vacantesController.descargarPdf
+    );
+
     /*------------Usuarios-----------*/
     router.get('/crear-cuenta',usuariosController.formCrearCuenta);
     router.post('/crear-cuenta',
@@ -77,6 +82,9 @@ module.exports = () =>{
     router.get('/candidatos/:id',
     authController.verificarUsuario,
     vacantesController.mostrarCandidatos);
+    
+    /*-----------Buscador ------------*/
+    router.post('/buscador',vacantesController.buscarVacantes);
     
 
 

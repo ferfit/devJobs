@@ -12,6 +12,7 @@ const MongoStore = require('connect-mongo');
 const bodyParser = require('body-parser'); //viene con express
 const flash = require('connect-flash');
 const passport = require('./config/passport');
+const createError = require('http-errors');
 
 
 const app = express();
@@ -56,6 +57,20 @@ app.use((req,res,next) => {
 
 //Ruteo
 app.use('/',router());
+
+//404 pagina no existe
+app.use((req,res,next)=>{
+    next(createError(404,'No encontrado'))
+})
+
+//Administracion de los errores
+app.use((error,req,res,next)=>{
+    res.locals.mensaje = error.message;
+    const status = error.status || 500; //si no existe el error o no lo pasa, por defecto 500
+    res.locals.status = status;
+    res.status(status)
+    res.render('error');
+})
 
 //Escucha en puerto
 app.listen(process.env.PUERTO);

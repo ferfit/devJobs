@@ -275,10 +275,31 @@ exports.mostrarCandidatos = async (req,res,next) =>{
     })
 
     
+}
 
+exports.buscarVacantes = async (req,res) =>{
 
+    console.log(req.body.q)
 
+    const vacantes = await Vacante.find({
+        $text: {
+            $search: req.body.q
+        }
+    });
+
+    console.log(vacantes)
 
     
+
+    //Mostrar vacantes
+    res.render('home',{
+        nombrePagina: `Resultados para la busquda ${req.body.q}`,
+        barra:true,
+        vacantes
+    })
+
+}
+
+exports.descargarPdf = (req,res) =>{
     
 }
